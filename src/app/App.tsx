@@ -100,7 +100,7 @@ export default function App() {
         if (isAdminMode) {
             switch (activePage) {
                 case "admin-dashboard":
-                    return <SuperAdminDashboard />;
+                    return <SuperAdminDashboard onViewAllCompanies={() => setActivePage("admin-companies")} />;
                 case "admin-companies":
                     if (viewingCompanyDetail && selectedCompanyDetail) {
                         return <CompanyDetailPage company={selectedCompanyDetail} onBack={handleBackFromCompanyDetail} />;
@@ -111,14 +111,14 @@ export default function App() {
                 case "admin-settings":
                     return <SystemSettings />;
                 default:
-                    return <SuperAdminDashboard />;
+                    return <SuperAdminDashboard onViewAllCompanies={() => setActivePage("admin-companies")} />;
             }
         }
 
         // Regular Employer Pages
         switch (activePage) {
             case "dashboard":
-                return <DashboardPage />;
+                return <DashboardPage onViewAllJobs={() => setActivePage("jobs")} />;
             case "jobs":
                 return <JobsPage onAddJob={() => setIsAddJobModalOpen(true)} onViewApplicantProfile={handleViewApplicantProfile} />;
             case "candidates":
@@ -142,7 +142,7 @@ export default function App() {
             case "profile":
                 return <ProfilePage />;
             default:
-                return <DashboardPage />;
+                return <DashboardPage onViewAllJobs={() => setActivePage("jobs")} />;
         }
     };
 

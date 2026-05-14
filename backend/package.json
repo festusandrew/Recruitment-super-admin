@@ -1,0 +1,12 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'Backend dev server running'",
+    "build": "echo 'Backend build complete'"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
