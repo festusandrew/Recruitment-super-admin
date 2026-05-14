@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { AdminSidebar } from "./components/AdminSidebar";
 import { Header } from "./components/Header";
@@ -26,7 +26,7 @@ import { ScheduleInterviewModal } from "./components/modals/ScheduleInterviewMod
 import { AddTaskModal } from "./components/modals/AddTaskModal";
 
 export default function App() {
-    const [activePage, setActivePage] = useState("admin-dashboard");
+    const [activePage, setActivePage] = useState("dashboard");
     const [isAdminMode, setIsAdminMode] = useState(true);
     const [isAddJobModalOpen, setIsAddJobModalOpen] = useState(false);
     const [isCandidateModalOpen, setIsCandidateModalOpen] = useState(false);
@@ -37,6 +37,29 @@ export default function App() {
     const [selectedApplicant, setSelectedApplicant] = useState<any>(null);
     const [viewingCompanyDetail, setViewingCompanyDetail] = useState(false);
     const [selectedCompanyDetail, setSelectedCompanyDetail] = useState<any>(null);
+
+    // Initialize state from URL pathname and listen to browser back/forward buttons
+    useEffect(() => {
+        const handleLocationChange = () => {
+            const path = window.location.pathname.replace(/^\/+/, "");
+            if (path) {
+                setActivePage(path);
+            } else {
+                setActivePage("dashboard");
+            }
+            setIsAdminMode(true);
+        };
+
+        handleLocationChange();
+        window.addEventListener("popstate", handleLocationChange);
+        return () => window.removeEventListener("popstate", handleLocationChange);
+    }, []);
+
+    const handleNavigate = (page: string) => {
+        setActivePage(page);
+        setIsAdminMode(true);
+        window.history.pushState({}, "", `/${page}`);
+    };
 
     const handleViewCandidate = (candidate: any) => {
         setSelectedCandidate({
@@ -77,18 +100,15 @@ export default function App() {
 
     const handleToggleAdminMode = () => {
         setIsAdminMode(!isAdminMode);
-        // When switching to admin mode, go to admin dashboard
         if (!isAdminMode) {
-            setActivePage("admin-dashboard");
+            handleNavigate("dashboard");
         } else {
-            // When exiting admin mode, go back to regular dashboard
-            setActivePage("dashboard");
+            handleNavigate("dashboard");
         }
     };
 
     const handleExitAdminMode = () => {
-        setIsAdminMode(false);
-        setActivePage("dashboard");
+        handleNavigate("dashboard");
     };
 
     const renderPage = () => {
@@ -99,26 +119,34 @@ export default function App() {
         // Admin Pages
         if (isAdminMode) {
             switch (activePage) {
+                case "dashboard":
                 case "admin-dashboard":
-                    return <SuperAdminDashboard onViewAllCompanies={() => setActivePage("admin-companies")} />;
+                    return <SuperAdminDashboard onViewAllCompanies={() => handleNavigate("companies")} />;
+                case "companies":
                 case "admin-companies":
                     if (viewingCompanyDetail && selectedCompanyDetail) {
                         return <CompanyDetailPage company={selectedCompanyDetail} onBack={handleBackFromCompanyDetail} />;
                     }
                     return <CompaniesManagement onViewCompany={handleViewCompanyDetail} />;
+                case "analytics":
                 case "admin-analytics":
                     return <PlatformAnalytics />;
+                case "settings":
                 case "admin-settings":
                     return <SystemSettings />;
+                case "help":
+                    return <HelpCenterPage />;
+                case "support":
+                    return <SupportPage />;
                 default:
-                    return <SuperAdminDashboard onViewAllCompanies={() => setActivePage("admin-companies")} />;
+                    return <SuperAdminDashboard onViewAllCompanies={() => handleNavigate("companies")} />;
             }
         }
 
         // Regular Employer Pages
         switch (activePage) {
             case "dashboard":
-                return <DashboardPage onViewAllJobs={() => setActivePage("jobs")} />;
+                return <DashboardPage onViewAllJobs={() => handleNavigate("jobs")} />;
             case "jobs":
                 return <JobsPage onAddJob={() => setIsAddJobModalOpen(true)} onViewApplicantProfile={handleViewApplicantProfile} />;
             case "candidates":
@@ -142,7 +170,7 @@ export default function App() {
             case "profile":
                 return <ProfilePage />;
             default:
-                return <DashboardPage onViewAllJobs={() => setActivePage("jobs")} />;
+                return <DashboardPage onViewAllJobs={() => handleNavigate("jobs")} />;
         }
     };
 
@@ -152,10 +180,10 @@ export default function App() {
             {isAdminMode ? (
                 <AdminSidebar
                     activePage={activePage}
-                    onNavigate={setActivePage}
+                    onNavigate={handleNavigate}
                 />
             ) : (
-                <Sidebar activePage={activePage} onNavigate={setActivePage} />
+                <Sidebar activePage={activePage} onNavigate={handleNavigate} />
             )}
 
             {/* Main Content Area */}

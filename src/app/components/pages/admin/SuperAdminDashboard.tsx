@@ -8,7 +8,7 @@ import { useState } from "react";
 import { ViewCompanyModal } from "../../modals/admin/ViewCompanyModal";
 import { EditCompanyModal } from "../../modals/admin/EditCompanyModal";
 import { CompanyActionsMenu } from "../../modals/admin/CompanyActionsMenu";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts@2.15.2";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
 interface SuperAdminDashboardProps {
     onViewAllCompanies?: () => void;

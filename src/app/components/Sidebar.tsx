@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
     LayoutDashboard,
     Briefcase,
@@ -11,6 +12,8 @@ import {
     HelpCircle,
     MessageCircle,
     ChevronDown,
+    ChevronLeft,
+    ChevronRight,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
@@ -20,6 +23,8 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activePage, onNavigate }: SidebarProps) {
+    const [isCollapsed, setIsCollapsed] = useState(false);
+
     const primaryNavItems = [
         { icon: LayoutDashboard, label: "Dashboard", page: "dashboard" },
         { icon: Briefcase, label: "Jobs", page: "jobs" },
@@ -38,18 +43,27 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
     ];
 
     return (
-        <aside className="w-[260px] bg-[#800020] border-r border-[#600018] flex flex-col h-screen sticky top-0">
+        <aside className={`${isCollapsed ? "w-[80px]" : "w-[260px]"} bg-[#800020] border-r border-[#600018] flex flex-col h-screen sticky top-0 transition-all duration-300 z-20`}>
             {/* Brand Area */}
-            <div className="p-6 border-b border-[#600018]">
-                <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-[#A52A2A] to-[#8B0000] rounded-lg flex items-center justify-center">
+            <div className={`p-4 border-b border-[#600018] flex items-center ${isCollapsed ? 'justify-center flex-col gap-2' : 'justify-between'}`}>
+                <div className="flex items-center gap-3 overflow-hidden">
+                    <div className="w-8 h-8 bg-gradient-to-br from-[#A52A2A] to-[#8B0000] rounded-lg flex items-center justify-center flex-shrink-0">
                         <span className="text-white text-sm">OT</span>
                     </div>
-                    <div>
-                        <h1 className="text-white">MployUs</h1>
-                        <p className="text-xs text-gray-300">Employer Workspace</p>
-                    </div>
+                    {!isCollapsed && (
+                        <div className="truncate">
+                            <h1 className="text-white font-semibold text-lg leading-tight truncate">MployUs</h1>
+                            <p className="text-xs text-gray-300 truncate">Employer Workspace</p>
+                        </div>
+                    )}
                 </div>
+                <button
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    className="p-1.5 rounded-lg hover:bg-[#600018] text-gray-300 hover:text-white transition-colors flex items-center justify-center"
+                    title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+                >
+                    {isCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
+                </button>
             </div>
 
             {/* Primary Navigation */}
@@ -61,7 +75,8 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
                         <button
                             key={item.label}
                             onClick={() => onNavigate(item.page)}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative ${isActive
+                            title={isCollapsed ? item.label : undefined}
+                            className={`w-full flex items-center ${isCollapsed ? 'justify-center py-3 px-0' : 'gap-3 px-3 py-2.5'} rounded-lg transition-all duration-200 group relative ${isActive
                                     ? "bg-[#A52A2A] text-white shadow-sm"
                                     : "text-gray-200 hover:bg-[#600018] hover:text-white"
                                 }`}
@@ -70,14 +85,14 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
                                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-r-full" />
                             )}
                             <Icon className="w-5 h-5 flex-shrink-0" strokeWidth={isActive ? 2.5 : 2} />
-                            <span className={isActive ? "font-medium" : ""}>{item.label}</span>
+                            {!isCollapsed && <span className={isActive ? "font-medium truncate" : "truncate"}>{item.label}</span>}
                         </button>
                     );
                 })}
 
                 {/* Divider */}
                 <div className="pt-4 pb-3">
-                    <div className="h-px bg-gray-300" />
+                    <div className="h-px bg-gray-300/30" />
                 </div>
 
                 {/* Secondary Navigation */}
@@ -88,13 +103,14 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
                         <button
                             key={item.label}
                             onClick={() => onNavigate(item.page)}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${isActive
+                            title={isCollapsed ? item.label : undefined}
+                            className={`w-full flex items-center ${isCollapsed ? 'justify-center py-3 px-0' : 'gap-3 px-3 py-2.5'} rounded-lg transition-all duration-200 ${isActive
                                     ? "bg-[#A52A2A] text-white shadow-sm"
                                     : "text-gray-300 hover:bg-[#600018] hover:text-white"
                                 }`}
                         >
                             <Icon className="w-5 h-5 flex-shrink-0" strokeWidth={2} />
-                            <span>{item.label}</span>
+                            {!isCollapsed && <span className="truncate">{item.label}</span>}
                         </button>
                     );
                 })}
@@ -104,18 +120,23 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
             <div className="p-4 border-t border-[#600018]">
                 <button
                     onClick={() => onNavigate("profile")}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${activePage === "profile" ? "bg-[#A52A2A]" : "hover:bg-[#600018]"
+                    title={isCollapsed ? "Jane Doe" : undefined}
+                    className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'gap-3 px-3 py-2.5'} rounded-lg transition-all duration-200 ${activePage === "profile" ? "bg-[#A52A2A]" : "hover:bg-[#600018]"
                         }`}
                 >
-                    <Avatar className="w-9 h-9">
+                    <Avatar className="w-9 h-9 flex-shrink-0">
                         <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=employer" />
                         <AvatarFallback>JD</AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 text-left">
-                        <p className="text-sm text-white">Jane Doe</p>
-                        <p className="text-xs text-gray-300">Hiring Manager</p>
-                    </div>
-                    <ChevronDown className="w-4 h-4 text-gray-300" />
+                    {!isCollapsed && (
+                        <>
+                            <div className="flex-1 text-left truncate">
+                                <p className="text-sm text-white truncate">Jane Doe</p>
+                                <p className="text-xs text-gray-300 truncate">Hiring Manager</p>
+                            </div>
+                            <ChevronDown className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                        </>
+                    )}
                 </button>
             </div>
         </aside>
